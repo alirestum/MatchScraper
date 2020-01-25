@@ -44,7 +44,8 @@ public class Statistics {
     }
 
     public void setFieldByName(String fieldName, TeamValue value) throws NoSuchFieldException, IllegalAccessException {
-        this.getClass().getDeclaredField(fieldName).set(this, value);
+        if(fieldName != null)
+            this.getClass().getDeclaredField(fieldName).set(this, value);
     }
 
     public TeamValue getFieldByName(String fieldName) throws NoSuchFieldException, IllegalAccessException {

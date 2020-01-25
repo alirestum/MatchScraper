@@ -246,8 +246,9 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
                                         Integer.valueOf(stats.findElement(By.xpath(".//div[" + i + "]/div[1]/div[1]")).getText()),
                                         Integer.valueOf(stats.findElement(By.xpath(".//div[" + i + "]/div[1]/div[3]")).getText())
                                 ));
-                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
+                        continue;
                     }
                 }
 

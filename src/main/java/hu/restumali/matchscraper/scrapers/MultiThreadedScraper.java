@@ -24,7 +24,13 @@ public class MultiThreadedScraper {
     }
 
     public void start(){
-        MatchDataScraper scraper = new MatchDataScraper(false);
+      statsAndBasicData();
+    }
+
+
+
+    public void statsAndBasicData(){
+        MatchDataScraper scraper = new MatchDataScraper(true);
         scraper.getBasicData();
         this.matchList = scraper.getMatches();
 
@@ -49,7 +55,7 @@ public class MultiThreadedScraper {
 
         }
 
-        //Startint all threads and wait for them to finish
+        //Starting all threads and wait for them to finish
         scrapers.forEach(Thread::start);
         scrapers.forEach(scrapMatchData -> {
             try {
