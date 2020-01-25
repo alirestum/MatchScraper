@@ -1,0 +1,16 @@
+Labdabirtoklás,possession
+Kapura lövés,shots
+Kaput eltaláló lövések,shotsOnTarget
+Kaput nem találó lövések,shotsMissed
+Blokkolt lövés,blockedShots
+Szabadrúgás,freeKicks
+Szöglet,corners
+Les,offside
+Védés,saves
+Szabálytalanság,fouls
+Piros lap,redCards
+Sárga lap,yellowCards
+Összes passz,passes
+Szerelés,interceptions
+Támadás,attacks
+Veszélyes támadás,dangerous_attacks

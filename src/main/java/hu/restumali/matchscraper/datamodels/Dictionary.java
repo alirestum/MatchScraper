@@ -1,7 +1,10 @@
+package hu.restumali.matchscraper.datamodels;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.restumali.matchscraper.helpers.CommandLineColors;
 import lombok.Data;
 
 import java.io.*;
@@ -27,7 +30,7 @@ public class Dictionary {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(CommandLineColors.ANSI_PURPLE.getColor()+"Dictionary written to JSON file!" + CommandLineColors.ANSI_RESET.getColor());
+        System.out.println(CommandLineColors.ANSI_PURPLE.getColor()+"hu.restumali.matchscraper.datamodels.Dictionary written to JSON file!" + CommandLineColors.ANSI_RESET.getColor());
     }
 
     public void readDictionary() throws IOException {
@@ -36,5 +39,9 @@ public class Dictionary {
 
         TypeReference<HashMap<String, String>> typref = new TypeReference<HashMap<String, String>>() {};
         dictionary = mapper.readValue(new File("dictionary.json"), typref);
+    }
+
+    public String getEnglishName(String key){
+        return dictionary.get(key);
     }
 }

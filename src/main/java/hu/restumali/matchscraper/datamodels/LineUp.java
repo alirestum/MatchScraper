@@ -1,3 +1,5 @@
+package hu.restumali.matchscraper.datamodels;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
