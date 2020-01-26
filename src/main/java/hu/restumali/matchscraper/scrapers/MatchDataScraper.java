@@ -3,10 +3,7 @@ package hu.restumali.matchscraper.scrapers;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hu.restumali.matchscraper.datamodels.Dictionary;
-import hu.restumali.matchscraper.datamodels.Match;
-import hu.restumali.matchscraper.datamodels.Statistics;
-import hu.restumali.matchscraper.datamodels.TeamValue;
+import hu.restumali.matchscraper.datamodels.*;
 import hu.restumali.matchscraper.helpers.CommandLineColors;
 import hu.restumali.matchscraper.helpers.JsonSerialiser;
 import lombok.Getter;
@@ -26,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -254,17 +252,89 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
 
 
                 System.out.print(super.getId() + ": ");
-                System.out.println(CommandLineColors.ANSI_BLUE.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " done" + CommandLineColors.ANSI_RESET.getColor());
+                System.out.println(CommandLineColors.ANSI_BLUE.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " stats done" + CommandLineColors.ANSI_RESET.getColor());
                 match.setStats(statistics);
                 //writeJson();
 
             } else {
                 System.out.print(super.getId() + ": ");
-                System.out.println(CommandLineColors.ANSI_GREEN.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " already done" + CommandLineColors.ANSI_RESET.getColor());
+                System.out.println(CommandLineColors.ANSI_GREEN.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " stats already done" + CommandLineColors.ANSI_RESET.getColor());
             }
         }
 
+        quitDriver();
+
     }
+
+    public void getLineUp(){
+        initializeDriver();
+
+        for (Match match : matches){
+            if (match.getLineUp() == null){
+
+                //Get lineup site
+                String lineUpLink = match.getLinkToStatistics().replace("#a-merkozes-statisztikaja;0","#osszeallitasok;1");
+                driver.get(lineUpLink);
+                WebDriverWait wait = new WebDriverWait(driver, 30);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[contains(text(),'Edz')]")));
+
+
+                LineUp lineUp = new LineUp();
+                HashMap<String, Integer> awayPlayers = new HashMap<>();
+                HashMap<String, Integer> homePlayers = new HashMap<>();
+
+                //Get players table
+                WebElement playersTable = driver.findElement(By.xpath("//div[@class='lineups-wrapper']//tbody"));
+
+
+                //Get trs from table
+                List<WebElement> trList = playersTable.findElements(By.tagName("tr"));
+
+
+                //Get players from trList
+                for (int i = 1; i < 12; i++) {
+
+                    String homePlayer = trList.get(i).findElement(By.cssSelector("td.summary-vertical.fl")).
+                            findElement(By.xpath(".//div[2]/a[1]")).getText();
+                    String awayPlayer = trList.get(i).findElement(By.cssSelector("td.summary-vertical.fr")).
+                            findElement(By.xpath(".//div[2]/a[1]")).getText();
+
+                    //Remove Captain and Goalkeeper tags
+                    if (homePlayer.contains(" (K)")){
+                        homePlayer.replace(" (K)", "");
+                    } else if (homePlayer.contains(" (C)")){
+                        homePlayer.replace(" (C)", "");
+                    } else if (awayPlayer.contains(" (K)")){
+                        awayPlayer.replace(" (K)", "");
+                    } else if (awayPlayer.contains(" (C)")) {
+                        awayPlayer.replace(" (C)", "");
+                    }
+
+                    homePlayers.put(homePlayer, 0);
+                    awayPlayers.put(awayPlayer,0);
+
+                }
+
+                lineUp.setAwayPlayers(awayPlayers);
+                lineUp.setHomePlayers(homePlayers);
+
+                match.setLineUp(lineUp);
+
+
+                System.out.print(super.getId() + ": ");
+                System.out.println(CommandLineColors.ANSI_BLUE.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " lineup done" + CommandLineColors.ANSI_RESET.getColor());
+
+
+            } else{
+                System.out.print(super.getId() + ": ");
+                System.out.println(CommandLineColors.ANSI_GREEN.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " lineup already done" + CommandLineColors.ANSI_RESET.getColor());
+            }
+        }
+
+        quitDriver();
+    }
+
+
 
     public void run() {
         try {
@@ -272,7 +342,7 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        writeJson(super.getId() + "asd.json");
+        getLineUp();
     }
 
 }
