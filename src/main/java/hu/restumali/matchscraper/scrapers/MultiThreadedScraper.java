@@ -24,15 +24,15 @@ public class MultiThreadedScraper {
     }
 
     public void start(){
-      scrapDataMultithreaded();
+      statsAndBasicData();
     }
 
 
 
-    public void scrapDataMultithreaded(){
-        MatchDataScraper basicDataScraper = new MatchDataScraper(true);
-        basicDataScraper.getBasicData();
-        this.matchList = basicDataScraper.getMatches();
+    public void statsAndBasicData(){
+        MatchDataScraper scraper = new MatchDataScraper(true);
+        scraper.getBasicData();
+        this.matchList = scraper.getMatches();
 
 
         //Dividing the matches between scrapers(threads)
@@ -70,10 +70,10 @@ public class MultiThreadedScraper {
         for (MatchDataScraper scp : scrapers) {
             this.matchList.addAll(scp.getMatches());
         }
-        basicDataScraper.setMatches(this.matchList);
+        scraper.setMatches(this.matchList);
 
         //Writing the data to file
-        basicDataScraper.writeJson();
+        scraper.writeJson();
     }
 
 
