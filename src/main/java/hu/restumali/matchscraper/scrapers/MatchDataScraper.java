@@ -222,10 +222,10 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
 
                 //Set posession and shots
                 try {
-                statistics.setPossession(new TeamValue(
-                        Integer.valueOf(stats.findElement(By.xpath(".//div[1]/div[1]/div[1]")).getText().replace("%", "")),
-                        Integer.valueOf(stats.findElement(By.xpath(".//div[1]/div[1]/div[3]")).getText().replace("%", ""))));
-                } catch (Exception e){
+                    statistics.setPossession(new TeamValue(
+                            Integer.valueOf(stats.findElement(By.xpath(".//div[1]/div[1]/div[1]")).getText().replace("%", "")),
+                            Integer.valueOf(stats.findElement(By.xpath(".//div[1]/div[1]/div[3]")).getText().replace("%", ""))));
+                } catch (Exception e) {
                     continue;
                 }
 
@@ -266,14 +266,14 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
 
     }
 
-    public void getLineUp(){
+    public void getLineUp() {
         initializeDriver();
 
-        for (Match match : matches){
-            if (match.getLineUp() == null){
+        for (Match match : matches) {
+            if (match.getLineUp() == null) {
 
                 //Get lineup site
-                String lineUpLink = match.getLinkToStatistics().replace("#a-merkozes-statisztikaja;0","#osszeallitasok;1");
+                String lineUpLink = match.getLinkToStatistics().replace("#a-merkozes-statisztikaja;0", "#osszeallitasok;1");
                 driver.get(lineUpLink);
                 WebDriverWait wait = new WebDriverWait(driver, 30);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[contains(text(),'Edz')]")));
@@ -300,18 +300,18 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
                             findElement(By.xpath(".//div[2]/a[1]")).getText();
 
                     //Remove Captain and Goalkeeper tags
-                    if (homePlayer.contains(" (K)")){
-                        homePlayer.replace(" (K)", "");
-                    } else if (homePlayer.contains(" (C)")){
-                        homePlayer.replace(" (C)", "");
-                    } else if (awayPlayer.contains(" (K)")){
-                        awayPlayer.replace(" (K)", "");
+                    if (homePlayer.contains(" (K)")) {
+                        homePlayer = homePlayer.replace(" (K)", "");
+                    } else if (homePlayer.contains(" (C)")) {
+                        homePlayer = homePlayer.replace(" (C)", "");
+                    } else if (awayPlayer.contains(" (K)")) {
+                        awayPlayer = awayPlayer.replace(" (K)", "");
                     } else if (awayPlayer.contains(" (C)")) {
-                        awayPlayer.replace(" (C)", "");
+                        awayPlayer = awayPlayer.replace(" (C)", "");
                     }
 
                     homePlayers.put(homePlayer, 0);
-                    awayPlayers.put(awayPlayer,0);
+                    awayPlayers.put(awayPlayer, 0);
 
                 }
 
@@ -325,7 +325,7 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
                 System.out.println(CommandLineColors.ANSI_BLUE.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " lineup done" + CommandLineColors.ANSI_RESET.getColor());
 
 
-            } else{
+            } else {
                 System.out.print(super.getId() + ": ");
                 System.out.println(CommandLineColors.ANSI_GREEN.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " lineup already done" + CommandLineColors.ANSI_RESET.getColor());
             }
@@ -333,7 +333,6 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
 
         quitDriver();
     }
-
 
 
     public void run() {
