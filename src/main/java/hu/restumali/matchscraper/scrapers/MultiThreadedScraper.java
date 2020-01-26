@@ -14,7 +14,7 @@ import java.util.List;
 public class MultiThreadedScraper {
 
     @Getter @Setter
-    private int threads;
+    private Integer threads;
 
     @Setter
     private List<Match> matchList = Collections.synchronizedList(new ArrayList<>());

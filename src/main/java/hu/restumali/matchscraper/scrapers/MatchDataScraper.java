@@ -48,7 +48,6 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
     public MatchDataScraper(boolean headless) {
         this.headless = headless;
         matchnodes = new ArrayList<>();
-//        matches = new ArrayList<>();
         matches = Collections.synchronizedList(new ArrayList<>());
         try {
             dictionary = new Dictionary();
@@ -92,12 +91,6 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
             webActions.moveToElement(cookie).click().perform();
 
             //Load more all matches
-            /*WebElement moreMatches = driver.findElement(By.xpath("//a[@class='event__more event__more--static']"));
-            webActions.moveToElement(driver.findElement(By.xpath("//div[contains(text(),'Mobilalkalmazások')]"))).perform();
-            webActions.moveToElement(moreMatches).click().perform();
-*/
-
-
             while (true) {
                 WebElement moreMatches;
                 try {
@@ -334,6 +327,77 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
         quitDriver();
     }
 
+    public void getGoalScorer() {
+        initializeDriver();
+
+        for (Match match : matches) {
+            if (match.getGoalScorers() == null) {
+
+                if (!(match.getResult().equals("00"))) {
+                    //Get summary page
+                    String linkToSummary = match.getLinkToStatistics().replace("#a-merkozes-statisztikaja;0", "#osszefoglalas");
+                    driver.get(linkToSummary);
+                    WebDriverWait wait = new WebDriverWait(driver, 30);
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='h-part']")));
+
+                    ArrayList<GoalScorer> awayScorers = new ArrayList<>();
+                    ArrayList<GoalScorer> homeScorers = new ArrayList<>();
+
+                    GoalScorers scorers = new GoalScorers();
+
+                    //Get home events and find goals among events
+                    List<WebElement> homeEvents = driver.findElements(By.cssSelector("div.detailMS__incidentRow.incidentRow--home"));
+
+                    for (WebElement event : homeEvents) {
+                        if (event.findElement(By.xpath("./div[2]/span[1]")).getAttribute("class").equals("icon soccer-ball")) {
+                            String minute = event.findElement(By.xpath("./div[1]")).getText();
+                            WebElement goalscorer = event.findElement(By.cssSelector("span.participant-name"));
+                            String goalScorerName = goalscorer.findElement(By.xpath("./a[1]")).getText();
+                            String assistBy = null;
+                            try {
+                                assistBy = event.findElement(By.xpath("./span[2]/a[1]")).getText();
+                            } catch (Exception ignored) {
+                            }
+                            homeScorers.add(new GoalScorer(goalScorerName, assistBy, minute));
+                        }
+                    }
+
+                    //Get away events and find goals among events
+                    List<WebElement> awayEvents = driver.findElements(By.cssSelector("div.detailMS__incidentRow.incidentRow--away"));
+
+                    for (WebElement event : awayEvents) {
+                        if (event.findElement(By.xpath("./div[2]/span[1]")).getAttribute("class").equals("icon soccer-ball")) {
+                            String minute = event.findElement(By.xpath("./div[1]")).getText();
+                            WebElement goalscorer = event.findElement(By.cssSelector("span.participant-name"));
+                            String goalScorerName = goalscorer.findElement(By.xpath("./a[1]")).getText();
+                            String assistBy = null;
+                            try {
+                                assistBy = event.findElement(By.xpath("./span[2]/a[1]")).getText();
+                            } catch (Exception ignored) {
+                            }
+                            awayScorers.add(new GoalScorer(goalScorerName, assistBy, minute));
+                        }
+                    }
+
+                    scorers.setAwayScorers(awayScorers);
+                    scorers.setHomeScorers(homeScorers);
+                    match.setGoalScorers(scorers);
+
+                    System.out.print(super.getId() + ": ");
+                    System.out.println(CommandLineColors.ANSI_BLUE.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " goalscorers done" + CommandLineColors.ANSI_RESET.getColor());
+                } else {
+                    GoalScorers scorers = new GoalScorers();
+                    match.setGoalScorers(scorers);
+                }
+            } else {
+                System.out.print(super.getId() + ": ");
+                System.out.println(CommandLineColors.ANSI_GREEN.getColor() + match.getTeam1() + " vs " + match.getTeam2() + " goalscorers already done" + CommandLineColors.ANSI_RESET.getColor());
+            }
+        }
+
+        quitDriver();
+    }
+
 
     public void run() {
         try {
@@ -342,6 +406,7 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
             e.printStackTrace();
         }
         getLineUp();
+        getGoalScorer();
     }
 
 }

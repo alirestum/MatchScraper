@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.HashMap;
 
 
 @Data @AllArgsConstructor @NoArgsConstructor
@@ -18,7 +17,7 @@ public class Match{
     private String linkToStatistics;
     private Statistics stats;
     private LineUp lineUp;
-    private HashMap<String, Integer> goalScorer;
+    private GoalScorers goalScorers;
     @JsonFormat
             (shape = JsonFormat.Shape.STRING, pattern = "dd.mm.yyyy HH:mm")
     private Date matchDate;
@@ -38,7 +37,7 @@ public class Match{
                 ", linkToStatistics='" + linkToStatistics + '\'' +
                 ", stats=" + stats +
                 ", lineUp=" + lineUp +
-                ", goalScorer=" + goalScorer +
+                ", goalScorer=" + goalScorers +
                 '}';
     }
 
