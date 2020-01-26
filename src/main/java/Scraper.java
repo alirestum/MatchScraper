@@ -4,7 +4,9 @@ public class Scraper {
 
     public static void main(String[] args) {
 
-       MultiThreadedScraper scraper = new MultiThreadedScraper(4);
+       MultiThreadedScraper scraper = new MultiThreadedScraper(8);
        scraper.start();
+
+
     }
 }
