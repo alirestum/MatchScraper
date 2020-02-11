@@ -30,4 +30,7 @@ jar {
     manifest {
         attributes 'Main-Class': 'Scraper'
     }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

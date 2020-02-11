@@ -111,10 +111,9 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
             for (WebElement element : matchnodes) {
                 String url = "https://www.eredmenyek.com/merkozes/" + element.getAttribute("id").substring(4) + "/#a-merkozes-statisztikaja;0";
                 String team1 = element.findElement(By.xpath(".//div[2]")).getText();
-                String result = element.findElement(By.xpath(".//div[3]")).getText().replace("\n - \n", "");
                 String team2 = element.findElement(By.xpath(".//div[4]")).getText();
 
-                matches.add(new Match(team1, team2, result, url, null, null, null, null, null));
+                matches.add(new Match(team1, team2, null, null, url, null, null, null, null, null));
             }
 
             writeJson();
@@ -181,9 +180,6 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
 
         initializeDriver();
 
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd.mm.yyyy HH:mm");
-
         for (Match match : matches) {
             //Load the match statistics page
             if (match.getStats() == null) {
@@ -192,11 +188,17 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
                 //Wait to load all stats
                 Pattern loadedpattern = Pattern.compile("[0-9]+");
                 WebDriverWait wait = new WebDriverWait(driver, 30);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html[1]/body[1]/div[2]/div[1]/div[4]/div[12]/div[2]/div[4]/div[1]/div[13]/div[1]/div[3]")));
-//                wait.until(ExpectedConditions.textMatches(By.xpath("/html[1]/body[1]/div[2]/div[1]/div[4]/div[12]/div[2]/div[4]/div[1]/div[14]/div[1]/div[3]"), loadedpattern));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tr[@class='odd']")));
 
                 //Get and Set match date
-                match.setMatchDate(formatter.parse(driver.findElement(By.xpath("/html[1]/body[1]/div[2]/div[1]/div[2]/div[2]")).getText()));
+                match.setMatchDate(driver.findElement(By.xpath("/html[1]/body[1]/div[2]/div[1]/div[2]/div[2]")).getText());
+
+                //Get and Set result
+                WebElement results = driver.findElement(By.xpath("//div[@id='event_detail_current_result']"));
+                Integer team1Goals = Integer.valueOf(results.findElement(By.xpath(".//span[1]")).getText());
+                Integer team2Goals = Integer.valueOf(results.findElement(By.xpath(".//span[2]/span[2]")).getText());
+                match.setTeam1Goals(team1Goals);
+                match.setTeam2Goals(team2Goals);
 
 
                 //Set League round
@@ -223,7 +225,7 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
                 }
 
                 statistics.setShots(new TeamValue(
-                        Integer.valueOf(driver.findElement(By.xpath("/html[1]/body[1]/div[2]/div[1]/div[4]/div[12]/div[2]/div[4]/div[1]/div[2]/div[1]/div[1]")).getText()),
+                        Integer.valueOf(driver.findElement(By.xpath("/html[1]/body[1]/div[2]/div[1]/div[4]/div[13]/div[2]/div[4]/div[1]/div[2]/div[1]/div[1]")).getText()),
                         Integer.valueOf(stats.findElement(By.xpath(".//div[2]/div[1]/div[3]")).getText())));
 
 
@@ -333,7 +335,7 @@ public class MatchDataScraper extends Thread implements Scrap, JsonSerialiser {
         for (Match match : matches) {
             if (match.getGoalScorers() == null) {
 
-                if (!(match.getResult().equals("00"))) {
+                if (!(match.getTeam1Goals() == 0 && match.getTeam2Goals() == 0)) {
                     //Get summary page
                     String linkToSummary = match.getLinkToStatistics().replace("#a-merkozes-statisztikaja;0", "#osszefoglalas");
                     driver.get(linkToSummary);
